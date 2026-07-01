@@ -97,7 +97,7 @@ test.describe("User Flow: Login → Onboarding → Workspace", () => {
     await page.getByRole("button", { name: /continue/i }).click();
 
     // ── Step 5: Design ──
-    await expect(page.getByText("Design Preferences")).toBeVisible();
+    await expect(page.getByText("Design Preferences").first()).toBeVisible();
     await page.getByRole("button", { name: /continue/i }).click();
 
     // ── Step 6: Goals ──

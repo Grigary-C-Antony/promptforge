@@ -58,7 +58,7 @@ test.describe("Workspace Page", () => {
 
     // Verify workspace elements
     await expect(page.getByText("Rotifex")).toBeVisible();
-    await expect(page.getByText("CREDITS")).toBeVisible();
+    await expect(page.getByText("CREDITS").first()).toBeVisible();
     await expect(page.getByText("Workspace E2E Project")).toBeVisible({ timeout: 10000 });
     await expect(page.getByText("My Projects")).toBeVisible();
     await expect(page.getByText("New Project")).toBeVisible();
@@ -116,7 +116,7 @@ test.describe("Workspace Page", () => {
     await expect(page.getByText("Generation Options")).toBeVisible({ timeout: 10000 });
     await expect(page.getByText("Use Credits")).toBeVisible();
     await expect(page.getByText("Use Custom API Key")).toBeVisible();
-    await expect(page.getByRole("button", { name: /generate/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Generate", exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: /cancel/i })).toBeVisible();
 
     await ctx.close();

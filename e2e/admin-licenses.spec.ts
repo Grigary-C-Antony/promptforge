@@ -67,7 +67,7 @@ test.describe("Admin License Management", () => {
       await flowsBtn.click();
 
       // Should switch to Flows tab with filter
-      await expect(page.getByText("Generated Flows")).toBeVisible();
+      await expect(page.getByText("Generated Flows").first()).toBeVisible();
       await expect(page.getByText("Clear Filter")).toBeVisible();
     }
   });

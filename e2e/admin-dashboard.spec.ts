@@ -38,8 +38,8 @@ test.describe("Admin Dashboard", () => {
   test("should show the combined 'Customers & UUIDs' table", async ({ page }) => {
     await expect(page.getByText("Customers & UUIDs")).toBeVisible();
     await expect(page.getByText("CUSTOMER / UUID")).toBeVisible();
-    await expect(page.getByText("STATUS")).first().toBeVisible();
-    await expect(page.getByText("CREDITS")).first().toBeVisible();
+    await expect(page.getByText("STATUS").first()).toBeVisible();
+    await expect(page.getByText("CREDITS").first()).toBeVisible();
   });
 
   test("should have filter toggles (All / Active)", async ({ page }) => {
@@ -96,7 +96,7 @@ test.describe("Admin Dashboard", () => {
 
     await expect(page.getByText("PROJECT NAME")).toBeVisible();
     await expect(page.getByText("CUSTOMER / KEY")).toBeVisible();
-    await expect(page.getByText("DATE")).toBeVisible();
+    await expect(page.getByText("DATE").first()).toBeVisible();
   });
 
   test("should switch back to Dashboard tab", async ({ page }) => {

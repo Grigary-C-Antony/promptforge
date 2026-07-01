@@ -42,7 +42,7 @@ test.describe("Admin Login", () => {
     await page.getByRole("button", { name: /sign in/i }).click();
 
     await page.waitForURL("**/admin", { timeout: 15000 });
-    await expect(page.getByText("Dashboard")).toBeVisible();
+    await expect(page.getByText("Dashboard").first()).toBeVisible();
   });
 
   test("should redirect unauthenticated user from /admin to /admin/login", async ({ page }) => {

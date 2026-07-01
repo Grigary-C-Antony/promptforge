@@ -7,7 +7,7 @@ test.describe("Landing Page — UUID Login", () => {
     await page.goto("/");
 
     // Branding
-    await expect(page.getByText("Rotifex")).toBeVisible();
+    await expect(page.getByText("Rotifex").first()).toBeVisible();
     await expect(page.getByText("AI Prompt Engineering")).toBeVisible();
 
     // Login card
