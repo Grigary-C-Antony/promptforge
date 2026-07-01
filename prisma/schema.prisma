@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      String   @default("ADMIN")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model License {
+  id              String    @id @default(uuid())
+  key             String    @unique
+  status          String    @default("ACTIVE")
+  expiresAt       DateTime?
+  deviceLimit     Int       @default(1)
+  workflowCredits Int       @default(10)
+  customerName    String?   
+  source          String?   
+  lastActivityAt  DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  devices     Device[]
+  sessions    Session[]
+  projects    Project[]
+  aiProviders AIProvider[]
+}
+
+model Device {
+  id           String   @id @default(uuid())
+  licenseId    String
+  fingerprint  String
+  lastActivity DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  license License @relation(fields: [licenseId], references: [id], onDelete: Cascade)
+
+  @@unique([licenseId, fingerprint])
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  licenseId String?
+  userId    String?
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  license License? @relation(fields: [licenseId], references: [id], onDelete: Cascade)
+}
+
+model Project {
+  id        String   @id @default(uuid())
+  name      String
+  licenseId String
+  context   Json?    // Stores ProjectContext object
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  license          License           @relation(fields: [licenseId], references: [id], onDelete: Cascade)
+  generatedPrompts GeneratedPrompt[]
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PromptPack {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  categoryId  String?
+  version     String   @default("1.0.0")
+  status      String   @default("DRAFT")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  templates PromptTemplate[]
+}
+
+model PromptTemplate {
+  id          String   @id @default(uuid())
+  packId      String
+  name        String
+  content     String   // The actual template with variables
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  pack PromptPack @relation(fields: [packId], references: [id], onDelete: Cascade)
+}
+
+model PromptBlock {
+  id          String   @id @default(uuid())
+  name        String
+  content     String
+  type        String   // e.g., 'SYSTEM_PROMPT', 'USER_PROMPT', 'RULES'
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model GeneratedPrompt {
+  id          String   @id @default(uuid())
+  projectId   String
+  name        String
+  content     String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model AIProvider {
+  id          String   @id @default(uuid())
+  licenseId   String?
+  name        String
+  apiKey      String   // Encrypted
+  defaultModel String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  license License? @relation(fields: [licenseId], references: [id], onDelete: Cascade)
+}
