@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 4990",
-    "build": "prisma generate && next build",
+    "build": "next build",
     "start": "next start -p 4990",
     "lint": "eslint",
     "test:e2e": "npx playwright test",
