@@ -5,8 +5,40 @@ import { decrypt } from './lib/session'
 const protectedRoutes = ['/workspace', '/onboarding']
 const adminRoutes = ['/admin']
 
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+function checkRateLimit(ip: string, limit: number, windowMs: number): boolean {
+  const now = Date.now();
+  const record = rateLimitMap.get(ip);
+
+  if (rateLimitMap.size > 10000) rateLimitMap.clear(); // Basic memory management
+
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + windowMs });
+    return true;
+  }
+
+  if (record.count >= limit) return false;
+
+  record.count++;
+  return true;
+}
+
 export async function middleware(req: NextRequest) {
-  const path = req.nextUrl.pathname
+  const path = req.nextUrl.pathname;
+  const ip = req.ip || req.headers.get('x-forwarded-for') || 'unknown';
+
+  // Rate Limiting (10 requests per minute for sensitive endpoints)
+  const isRateLimitedPath = path === '/api/generate' || path === '/api/seed' || path === '/admin/login';
+  if (req.method === 'POST' && isRateLimitedPath) {
+    if (!checkRateLimit(ip, 10, 60000)) {
+      return new NextResponse(JSON.stringify({ error: 'Too Many Requests' }), {
+        status: 429,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+  }
+
   const isProtectedRoute = protectedRoutes.some(route => path.startsWith(route))
   const isAdminRoute = adminRoutes.some(route => path.startsWith(route))
 
@@ -49,5 +81,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'],
+  matcher: ['/((?!_next/static|_next/image|.*\\.png$).*)'],
 }

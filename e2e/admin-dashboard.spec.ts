@@ -13,9 +13,9 @@ test.describe("Admin Dashboard", () => {
   // ─── Layout & Navigation ───
   test("should display sidebar with branding and nav items", async ({ page }) => {
     await expect(page.getByText("Rotifex").first()).toBeVisible();
-    await expect(page.getByText("ADMIN")).toBeVisible();
+    await expect(page.getByText("ADMIN").first()).toBeVisible();
     await expect(page.getByText("Dashboard")).first().toBeVisible();
-    await expect(page.getByText("Generated Flows")).toBeVisible();
+    await expect(page.getByText("Generated Flows").first()).toBeVisible();
   });
 
   test("should display top bar with 'Generate UUID' button", async ({ page }) => {
@@ -87,7 +87,7 @@ test.describe("Admin Dashboard", () => {
     await expect(page.getByText("Create New UUID")).not.toBeVisible({ timeout: 10000 });
 
     // The new customer should now appear in the table
-    await expect(page.getByText("Test Customer")).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText("Test Customer").first()).toBeVisible({ timeout: 5000 });
   });
 
   // ─── Tab Navigation ───

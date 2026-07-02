@@ -4,14 +4,27 @@ import { createSession, createLicenseSession, destroySession } from "@/lib/sessi
 import prisma from "@/lib/prisma";
 import { compare } from "bcryptjs";
 import { redirect } from "next/navigation";
+import { z } from "zod";
+
+const AdminLoginSchema = z.object({
+  email: z.string().email().max(100),
+  password: z.string().min(1).max(255),
+});
+
+const UserLoginSchema = z.object({
+  licenseKey: z.string().uuid(),
+});
 
 export async function adminLogin(formData: FormData) {
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
+  const rawEmail = formData.get("email") as string;
+  const rawPassword = formData.get("password") as string;
 
-  if (!email || !password) {
-    return { error: "Email and password are required" };
+  const parseResult = AdminLoginSchema.safeParse({ email: rawEmail, password: rawPassword });
+  if (!parseResult.success) {
+    return { error: "Invalid credentials format" };
   }
+
+  const { email, password } = parseResult.data;
 
   const user = await prisma.user.findUnique({ where: { email } });
   
@@ -30,12 +43,14 @@ export async function adminLogin(formData: FormData) {
 }
 
 export async function userLogin(formData: FormData) {
-  const licenseKey = formData.get("licenseKey") as string;
+  const rawLicenseKey = formData.get("licenseKey") as string;
 
-  if (!licenseKey) {
-    return { error: "License key is required" };
+  const parseResult = UserLoginSchema.safeParse({ licenseKey: rawLicenseKey });
+  if (!parseResult.success) {
+    return { error: "Invalid license key format" };
   }
 
+  const { licenseKey } = parseResult.data;
   const license = await prisma.license.findUnique({ where: { key: licenseKey } });
 
   if (!license || license.status !== "ACTIVE") {

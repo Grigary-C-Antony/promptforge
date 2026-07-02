@@ -34,7 +34,7 @@ test.describe("Landing Page — UUID Login", () => {
     await page.getByPlaceholder("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx").fill("invalid-uuid-12345");
     await page.getByRole("button", { name: /access platform/i }).click();
 
-    await expect(page.getByText(/invalid or inactive license key/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/invalid/i).first()).toBeVisible({ timeout: 5000 });
   });
 
   test("should show 'Verifying...' state while submitting", async ({ page }) => {

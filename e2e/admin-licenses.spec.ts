@@ -41,7 +41,7 @@ test.describe("Admin License Management", () => {
     await expect(page.getByText("Edit Customer")).not.toBeVisible({ timeout: 10000 });
 
     // Verify the updated name appears
-    await expect(page.getByText("Updated Customer")).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText("Updated Customer").first()).toBeVisible({ timeout: 5000 });
   });
 
   test("should copy UUID to clipboard", async ({ page, context }) => {

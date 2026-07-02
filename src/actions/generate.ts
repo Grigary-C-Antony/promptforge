@@ -3,8 +3,19 @@
 import prisma from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
+
+const GeneratePromptsSchema = z.object({
+  projectId: z.string().uuid(),
+  customApiKey: z.string().max(255).optional(),
+});
 
 export async function generatePromptsForProject(projectId: string, customApiKey?: string) {
+  const parseResult = GeneratePromptsSchema.safeParse({ projectId, customApiKey });
+  if (!parseResult.success) {
+    return { error: "Invalid input format" };
+  }
+
   const session = await getSession();
   if (!session || !session.licenseId) {
     return { error: "Unauthorized" };

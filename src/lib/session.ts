@@ -33,7 +33,7 @@ export async function createSession(userId: string, role: string) {
     expires,
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "strict",
     path: "/",
   });
 }
@@ -47,7 +47,7 @@ export async function createLicenseSession(licenseId: string) {
     expires,
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "strict",
     path: "/",
   });
 }

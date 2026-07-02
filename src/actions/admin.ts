@@ -3,6 +3,24 @@
 import prisma from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
+
+const UpdateCustomerSchema = z.object({
+  id: z.string().uuid(),
+  customerName: z.string().max(100),
+  source: z.string().max(100),
+});
+
+const UpdateCreditsSchema = z.object({
+  id: z.string().uuid(),
+  amount: z.number().int(),
+});
+
+const GenerateLicenseSchema = z.object({
+  customerName: z.string().max(100).optional(),
+  source: z.string().max(100).optional(),
+  workflowCredits: z.number().int().min(1).max(100000).optional().default(100),
+});
 
 export async function generateLicenseKey(formData: FormData) {
   const session = await getSession();
@@ -10,19 +28,23 @@ export async function generateLicenseKey(formData: FormData) {
     return { error: "Unauthorized" };
   }
 
-  const customerName = formData.get("customerName") as string || "";
-  const source = formData.get("source") as string || "";
-  const creditsStr = formData.get("credits") as string;
-  const workflowCredits = parseInt(creditsStr, 10) || 100;
-
   try {
+    const creditsStr = formData.get("credits") as string;
+    const parsedCredits = creditsStr ? parseInt(creditsStr, 10) : 100;
+
+    const validated = GenerateLicenseSchema.parse({
+      customerName: formData.get("customerName") as string || "",
+      source: formData.get("source") as string || "",
+      workflowCredits: isNaN(parsedCredits) ? 100 : parsedCredits,
+    });
+
     const newLicense = await prisma.license.create({
       data: {
         key: crypto.randomUUID(),
         status: "ACTIVE",
-        workflowCredits,
-        customerName,
-        source,
+        workflowCredits: validated.workflowCredits,
+        customerName: validated.customerName,
+        source: validated.source,
       },
     });
 
@@ -40,8 +62,9 @@ export async function revokeLicense(id: string) {
   }
 
   try {
+    const parsedId = z.string().uuid().parse(id);
     await prisma.license.update({
-      where: { id },
+      where: { id: parsedId },
       data: { status: "REVOKED" }
     });
     revalidatePath("/admin");
@@ -58,9 +81,10 @@ export async function updateCredits(id: string, amount: number) {
   }
 
   try {
+    const validated = UpdateCreditsSchema.parse({ id, amount });
     await prisma.license.update({
-      where: { id },
-      data: { workflowCredits: { increment: amount } }
+      where: { id: validated.id },
+      data: { workflowCredits: { increment: validated.amount } }
     });
     revalidatePath("/admin");
     return { success: true };
@@ -76,9 +100,10 @@ export async function updateCustomer(id: string, customerName: string, source: s
   }
 
   try {
+    const validated = UpdateCustomerSchema.parse({ id, customerName, source });
     await prisma.license.update({
-      where: { id },
-      data: { customerName, source }
+      where: { id: validated.id },
+      data: { customerName: validated.customerName, source: validated.source }
     });
     revalidatePath("/admin");
     return { success: true };

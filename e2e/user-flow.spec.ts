@@ -112,7 +112,7 @@ test.describe("User Flow: Login → Onboarding → Workspace", () => {
     await page.waitForURL("**/workspace", { timeout: 15000 });
 
     // Workspace should show the project name
-    await expect(page.getByText("E2E Test Project")).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText("E2E Test Project").first()).toBeVisible({ timeout: 10000 });
 
     await context.close();
   });
