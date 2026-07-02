@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import "dotenv/config";
 
 test.describe("Admin Login", () => {
   test.use({ storageState: { cookies: [], origins: [] } }); // no auth
@@ -26,8 +27,8 @@ test.describe("Admin Login", () => {
   test("should show 'Authenticating...' while submitting", async ({ page }) => {
     await page.goto("/admin/login");
 
-    await page.getByPlaceholder("admin@example.com").fill("dracorig@gmail.com");
-    await page.getByPlaceholder("••••••••").fill("X6dc003aKF@drac");
+    await page.getByPlaceholder("admin@example.com").fill(process.env.EMAIL_USER as string);
+    await page.getByPlaceholder("••••••••").fill(process.env.EMAIL_PASS as string);
     await page.getByRole("button", { name: /sign in/i }).click();
 
     // Should briefly show authenticating state
@@ -37,8 +38,8 @@ test.describe("Admin Login", () => {
   test("should redirect to /admin on successful login", async ({ page }) => {
     await page.goto("/admin/login");
 
-    await page.getByPlaceholder("admin@example.com").fill("dracorig@gmail.com");
-    await page.getByPlaceholder("••••••••").fill("X6dc003aKF@drac");
+    await page.getByPlaceholder("admin@example.com").fill(process.env.EMAIL_USER as string);
+    await page.getByPlaceholder("••••••••").fill(process.env.EMAIL_PASS as string);
     await page.getByRole("button", { name: /sign in/i }).click();
 
     await page.waitForURL("**/admin", { timeout: 15000 });

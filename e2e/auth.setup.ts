@@ -1,5 +1,6 @@
 import { test as setup, expect } from "@playwright/test";
 import path from "path";
+import "dotenv/config";
 
 const adminFile = path.join(__dirname, ".auth", "admin.json");
 
@@ -17,8 +18,8 @@ setup("authenticate as admin", async ({ page }) => {
   await expect(page.getByText("Admin Portal")).toBeVisible();
 
   // 3. Fill credentials
-  await page.getByPlaceholder("admin@example.com").fill("dracorig@gmail.com");
-  await page.getByPlaceholder("••••••••").fill("X6dc003aKF@drac");
+  await page.getByPlaceholder("admin@example.com").fill(process.env.EMAIL_USER as string);
+  await page.getByPlaceholder("••••••••").fill(process.env.EMAIL_PASS as string);
 
   // 4. Submit
   await page.getByRole("button", { name: /sign in/i }).click();

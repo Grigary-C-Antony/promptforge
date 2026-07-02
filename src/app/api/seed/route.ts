@@ -4,8 +4,9 @@ import { hash } from "bcryptjs";
 
 export async function GET() {
   try {
-    const email = "dracorig@gmail.com";
-    const password = "X6dc003aKF@drac";
+    const email = process.env.EMAIL_USER;
+    const password = process.env.EMAIL_PASS;
+    if (!email || !password) return NextResponse.json({ error: "Missing EMAIL_USER or EMAIL_PASS in environment" }, { status: 500 });
 
     const existingAdmin = await prisma.user.findUnique({
       where: { email },

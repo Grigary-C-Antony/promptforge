@@ -10,8 +10,9 @@ const adapter = new PrismaPg(pool)
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const email = 'dracorig@gmail.com';
-  const password = 'X6dc003aKF@drac';
+  const email = process.env.EMAIL_USER;
+  const password = process.env.EMAIL_PASS;
+  if (!email || !password) throw new Error("Missing EMAIL_USER or EMAIL_PASS in environment");
 
   const existingAdmin = await prisma.user.findUnique({
     where: { email },
