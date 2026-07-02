@@ -26,7 +26,7 @@ function checkRateLimit(ip: string, limit: number, windowMs: number): boolean {
 
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
-  const ip = req.ip || req.headers.get('x-forwarded-for') || 'unknown';
+  const ip = req.headers.get('x-forwarded-for') || 'unknown';
 
   // Rate Limiting (10 requests per minute for sensitive endpoints)
   const isRateLimitedPath = path === '/api/generate' || path === '/api/seed' || path === '/admin/login';
