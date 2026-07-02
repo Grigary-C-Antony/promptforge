@@ -38,7 +38,6 @@ import {
   Wand2,
   Wrench
 } from 'lucide-react';
-import { createClient } from '@supabase/supabase-js';
 import { PROMPT_TEMPLATES } from '@/data/templates';
 
 export default function WorkspaceClient({ projects, license, openRouterKey = "" }: { projects: any[], license: any, openRouterKey?: string }) {
