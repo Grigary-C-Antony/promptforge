@@ -17,19 +17,17 @@ export default async function Workspace() {
     redirect("/");
   }
 
-  const projects = await prisma.project.findMany({
+  let projects = await prisma.project.findMany({
     where: { licenseId: session.licenseId },
     orderBy: { createdAt: "desc" },
     include: { generatedPrompts: true }
   });
 
+  projects = projects.filter(p => !p.context || !(p.context as any).isDeleted);
+
   const openRouterProvider = await prisma.aIProvider.findFirst({
     where: { licenseId: session.licenseId, name: "OpenRouter" }
   });
-
-  if (projects.length === 0) {
-    redirect("/onboarding");
-  }
 
   return <WorkspaceClient projects={projects} license={license} openRouterKey={openRouterProvider?.apiKey || ""} />;
 }

@@ -31,6 +31,7 @@ import {
   Smartphone,
   Archive,
   ArchiveRestore,
+  Trash2,
   Bot,
   BrainCircuit,
   Search,
@@ -63,6 +64,7 @@ export default function WorkspaceClient({ projects, license, openRouterKey = "" 
   // Generation Modal State
   const [showGenModal, setShowGenModal] = useState(false);
   const [useCustomKey, setUseCustomKey] = useState(false);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(projects.length === 0);
   
   // Template State
   const [selectedTemplate, setSelectedTemplate] = useState<{title: string, prompt: string} | null>(null);
@@ -134,6 +136,25 @@ export default function WorkspaceClient({ projects, license, openRouterKey = "" 
       router.refresh();
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleDeleteProject = async (e: React.MouseEvent, projectId: string) => {
+    e.stopPropagation();
+    if (confirm("Are you sure you want to delete this project? It can only be restored by an admin.")) {
+      try {
+        await fetch('/api/projects/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ projectId })
+        });
+        if (activeProjectId === projectId) {
+          setActiveProjectId(activeProjects.find(p => p.id !== projectId)?.id || null);
+        }
+        router.refresh();
+      } catch (err) {
+        console.error(err);
+      }
     }
   };
 
@@ -250,6 +271,33 @@ export default function WorkspaceClient({ projects, license, openRouterKey = "" 
 
   return (
     <div className="flex w-screen h-screen font-sans text-[#e8efe8] bg-[#040604] overflow-hidden">
+      
+      {/* Welcome Modal for New Users */}
+      {showWelcomeModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in">
+          <div className="w-[480px] bg-[#0a0f0a] border border-green-500/20 rounded-[32px] p-10 flex flex-col items-center text-center shadow-[0_0_40px_rgba(34,197,94,0.1)]">
+            <div className="w-20 h-20 rounded-2xl bg-green-500/10 flex items-center justify-center text-green-500 mb-6">
+              <Sparkles size={40} />
+            </div>
+            <h2 className="text-[28px] font-bold text-white tracking-tight mb-3">Welcome to PromptForge</h2>
+            <p className="text-[15px] font-medium text-[#e8efe8]/60 mb-8 leading-relaxed">
+              Your workspace is ready. Let's create your first AI-powered project workflow to generate customized, production-ready prompts.
+            </p>
+            <button 
+              onClick={handleNewWorkflow}
+              className="w-full py-4 bg-gradient-to-br from-green-500 to-teal-500 rounded-xl text-[#080c08] font-bold text-[15px] hover:shadow-[0_4px_20px_rgba(34,197,94,0.3)] transition-all flex items-center justify-center gap-2"
+            >
+              <Plus size={20} strokeWidth={2.5} /> Create New Workflow
+            </button>
+            <button 
+              onClick={() => setShowWelcomeModal(false)}
+              className="mt-4 text-[13px] font-semibold text-[#e8efe8]/40 hover:text-white transition-colors"
+            >
+              Explore Dashboard First
+            </button>
+          </div>
+        </div>
+      )}
       
       {/* --- Sidebar --- */}
       <div className="w-[260px] flex flex-col bg-[#060906] border-r border-[#e8efe8]/[0.06] shrink-0">
@@ -629,6 +677,9 @@ export default function WorkspaceClient({ projects, license, openRouterKey = "" 
                     <div className="flex items-center gap-2">
                       <button onClick={(e) => toggleArchive(e, p.id, p.context?.isArchived)} className="w-8 h-8 rounded-xl bg-[#e8efe8]/5 text-[#e8efe8]/40 hover:bg-[#e8efe8]/10 hover:text-white flex items-center justify-center transition-colors" title={p.context?.isArchived ? "Unarchive" : "Archive"}>
                         {p.context?.isArchived ? <ArchiveRestore size={16} /> : <Archive size={16} />}
+                      </button>
+                      <button onClick={(e) => handleDeleteProject(e, p.id)} className="w-8 h-8 rounded-xl bg-red-500/5 text-red-500/50 hover:bg-red-500/10 hover:text-red-500 flex items-center justify-center transition-colors" title="Delete Project">
+                        <Trash2 size={16} />
                       </button>
                       <div className={`px-3 py-1.5 ${isComplete ? 'bg-green-500/10 text-green-500' : 'bg-[#e8efe8]/10 text-[#e8efe8]/70'} text-[10px] font-bold uppercase tracking-wider rounded-lg`}>
                         {isComplete ? 'Completed' : 'In Progress'}

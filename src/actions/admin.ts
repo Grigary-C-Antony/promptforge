@@ -93,6 +93,24 @@ export async function updateCredits(id: string, amount: number) {
   }
 }
 
+export async function deleteLicense(id: string) {
+  const session = await getSession();
+  if (!session || session.role !== "ADMIN") {
+    return { error: "Unauthorized" };
+  }
+
+  try {
+    const parsedId = z.string().uuid().parse(id);
+    await prisma.license.delete({
+      where: { id: parsedId }
+    });
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (error: any) {
+    return { error: error.message || "Failed to delete license" };
+  }
+}
+
 export async function updateCustomer(id: string, customerName: string, source: string) {
   const session = await getSession();
   if (!session || session.role !== "ADMIN") {

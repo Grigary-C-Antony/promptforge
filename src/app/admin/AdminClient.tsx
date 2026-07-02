@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { generateLicenseKey, revokeLicense, updateCredits, updateCustomer } from "@/actions/admin";
+import { generateLicenseKey, revokeLicense, deleteLicense, updateCredits, updateCustomer } from "@/actions/admin";
 import { logout } from "@/actions/auth";
 
 export default function AdminClient({ stats, allLicenses, allProjects }: { stats: any, allLicenses: any[], allProjects: any[] }) {
@@ -44,6 +44,14 @@ export default function AdminClient({ stats, allLicenses, allProjects }: { stats
     startTransition(async () => {
       await revokeLicense(id);
     });
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm("Are you sure you want to permanently delete this user and all their data?")) {
+      startTransition(async () => {
+        await deleteLicense(id);
+      });
+    }
   };
 
   const handleUpdateCredits = (id: string, amount: number) => {
@@ -263,6 +271,14 @@ export default function AdminClient({ stats, allLicenses, allProjects }: { stats
                       <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2L2 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
                     </button>
                   )}
+                  <button 
+                    onClick={() => handleDelete(license.id)}
+                    disabled={isPending}
+                    title="Delete License"
+                    className="px-2 py-1 rounded-md bg-[#e8efe8]/[0.04] flex items-center justify-center cursor-pointer hover:bg-red-500/20 hover:text-red-500 text-[#e8efe8]/40 transition-colors disabled:opacity-50"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  </button>
                 </div>
               </div>
             ))}
