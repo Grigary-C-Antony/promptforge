@@ -23,9 +23,13 @@ export default async function Workspace() {
     include: { generatedPrompts: true }
   });
 
+  const openRouterProvider = await prisma.aIProvider.findFirst({
+    where: { licenseId: session.licenseId, name: "OpenRouter" }
+  });
+
   if (projects.length === 0) {
     redirect("/onboarding");
   }
 
-  return <WorkspaceClient projects={projects} license={license} />;
+  return <WorkspaceClient projects={projects} license={license} openRouterKey={openRouterProvider?.apiKey || ""} />;
 }

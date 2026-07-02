@@ -39,7 +39,7 @@ export async function adminLogin(formData: FormData) {
   }
 
   await createSession(user.id, user.role);
-  redirect("/admin");
+  return { success: true };
 }
 
 export async function userLogin(formData: FormData) {
@@ -68,7 +68,7 @@ export async function userLogin(formData: FormData) {
   });
 
   await createLicenseSession(license.id);
-  redirect("/workspace");
+  return { success: true };
 }
 
 export async function logout() {

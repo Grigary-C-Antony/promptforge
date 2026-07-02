@@ -23,6 +23,8 @@ export default function LandingPage() {
       const res = await userLogin(formData);
       if (res?.error) {
         setError(res.error);
+      } else if (res?.success) {
+        router.push("/workspace");
       }
     } catch (err: any) {
       setError("An unexpected error occurred");

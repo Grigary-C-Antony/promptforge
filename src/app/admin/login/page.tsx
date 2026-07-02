@@ -25,6 +25,8 @@ export default function AdminLogin() {
       const res = await adminLogin(formData);
       if (res?.error) {
         setError(res.error);
+      } else if (res?.success) {
+        router.push("/admin");
       }
     } catch (err: any) {
       setError("An unexpected error occurred");
